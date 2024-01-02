@@ -128,22 +128,8 @@
 		97FDF967133E813C0035218F /* HID_Calibrator */ = {
 			isa = PBXGroup;
 			children = (
-				97FDF976133E813C0035218F /* MainMenu.xib */,
-				97FDF973133E813C0035218F /* HID_CalibratorAppDelegate.h */,
-				97FDF974133E813C0035218F /* HID_CalibratorAppDelegate.m */,
-				9718AA18134A89D00075D553 /* IOHIDDeviceWindow.xib */,
-				97FDF9B8133EA0950035218F /* IOHIDDeviceWindowCtrl.h */,
-				97FDF9B9133EA0950035218F /* IOHIDDeviceWindowCtrl.m */,
-				97C9CABD176F6C0400EE42AE /* IOHIDDeviceView.h */,
-				97C9CABE176F6C0400EE42AE /* IOHIDDeviceView.m */,
-				97FDF9B2133E959E0035218F /* IOHIDElementModel.h */,
-				97FDF9B3133E959E0035218F /* IOHIDElementModel.m */,
-				9718AA1A134A89D00075D553 /* IOHIDElementCollectionView.xib */,
-				976D4FE1133FBA660054AFA8 /* IOHIDElementCollectionViewItem.h */,
-				976D4FE2133FBA660054AFA8 /* IOHIDElementCollectionViewItem.m */,
-				977D3FDD1346133000980122 /* MyLevelIndicatorView.h */,
-				977D3FDE1346133000980122 /* MyLevelIndicatorView.m */,
-				97FDF980133E82820035218F /* HID Utilities */,
+				DA1E8DFB2B44500E0050E96E /* Resources */,
+				DA1E8DFC2B4450280050E96E /* Sources */,
 				97FDF968133E813C0035218F /* Supporting Files */,
 			);
 			path = HID_Calibrator;
@@ -191,6 +177,36 @@
 				97FDF994133E82820035218F /* IOHIDLib_.h */,
 			);
 			path = IOHIDManager;
+			sourceTree = "<group>";
+		};
+		DA1E8DFB2B44500E0050E96E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				9718AA1A134A89D00075D553 /* IOHIDElementCollectionView.xib */,
+				9718AA18134A89D00075D553 /* IOHIDDeviceWindow.xib */,
+				97FDF976133E813C0035218F /* MainMenu.xib */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		DA1E8DFC2B4450280050E96E /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				97FDF973133E813C0035218F /* HID_CalibratorAppDelegate.h */,
+				97FDF974133E813C0035218F /* HID_CalibratorAppDelegate.m */,
+				97FDF9B8133EA0950035218F /* IOHIDDeviceWindowCtrl.h */,
+				97FDF9B9133EA0950035218F /* IOHIDDeviceWindowCtrl.m */,
+				97C9CABD176F6C0400EE42AE /* IOHIDDeviceView.h */,
+				97C9CABE176F6C0400EE42AE /* IOHIDDeviceView.m */,
+				97FDF9B2133E959E0035218F /* IOHIDElementModel.h */,
+				97FDF9B3133E959E0035218F /* IOHIDElementModel.m */,
+				976D4FE1133FBA660054AFA8 /* IOHIDElementCollectionViewItem.h */,
+				976D4FE2133FBA660054AFA8 /* IOHIDElementCollectionViewItem.m */,
+				977D3FDD1346133000980122 /* MyLevelIndicatorView.h */,
+				977D3FDE1346133000980122 /* MyLevelIndicatorView.m */,
+				97FDF980133E82820035218F /* HID Utilities */,
+			);
+			path = Sources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
