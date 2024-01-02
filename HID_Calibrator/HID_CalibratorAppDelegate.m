@@ -93,58 +93,67 @@ static void Handle_DeviceRemovalCallback(void *inContext, IOReturn inResult, voi
 
 @implementation HID_CalibratorAppDelegate
 
-- (id)init {
-	NSLogDebug();
+- (id)init
+{
+    NSLogDebug();
     self = [super init];
-    if (self) {
-		// Insert code here to initialize your application
+    if (self)
+    {
+        // Insert code here to initialize your application
     }
     return self;
 }
 
-- (void)dealloc {
-	NSLogDebug();
+- (void)dealloc
+{
+    NSLogDebug();
 }
 
-- (void)applicationDidFinishLaunching: (NSNotification *) aNotification {
-	NSLogDebug();
-	windowControllers = [[NSMutableArray alloc] init];
+- (void)applicationDidFinishLaunching: (NSNotification *) aNotification
+{
+    NSLogDebug();
+    windowControllers = [[NSMutableArray alloc] init];
 
-	Initialize_HID((__bridge void *)(self));
+    Initialize_HID((__bridge void *)(self));
 }
 
-- (void)applicationWillTerminate: (NSNotification *) notification {
-	NSLogDebug();
-	Terminate_HID((__bridge void *)(self));
+- (void)applicationWillTerminate: (NSNotification *) notification
+{
+    NSLogDebug();
+    Terminate_HID((__bridge void *)(self));
 }
 
-- (void)createWindowForHIDDevice: (IOHIDDeviceRef) inIOHIDDeviceRef {
-	NSLogDebug(@"(inIOHIDDeviceRef: %p)", inIOHIDDeviceRef);
+- (void)createWindowForHIDDevice: (IOHIDDeviceRef) inIOHIDDeviceRef
+{
+    NSLogDebug(@"(inIOHIDDeviceRef: %p)", inIOHIDDeviceRef);
 
-	// create a new window controller for this device
-	//IOHIDDeviceWindowCtrl *ioHIDDeviceWindowCtrl = [[IOHIDDeviceWindowCtrl alloc] init];
-	IOHIDDeviceWindowCtrl *ioHIDDeviceWindowCtrl = [[IOHIDDeviceWindowCtrl alloc] initWithIOHIDDeviceRef:inIOHIDDeviceRef];
+    // create a new window controller for this device
+    //IOHIDDeviceWindowCtrl *ioHIDDeviceWindowCtrl = [[IOHIDDeviceWindowCtrl alloc] init];
+    IOHIDDeviceWindowCtrl *ioHIDDeviceWindowCtrl = [[IOHIDDeviceWindowCtrl alloc] initWithIOHIDDeviceRef:inIOHIDDeviceRef];
     [windowControllers addObject:ioHIDDeviceWindowCtrl];
-} // createWindowForHIDDevice
+}
 
-- (void)removeWindowForHIDDevice: (IOHIDDeviceRef) inIOHIDDeviceRef {
-	NSLogDebug(@"(inIOHIDDeviceRef: %p)", inIOHIDDeviceRef);
+- (void)removeWindowForHIDDevice: (IOHIDDeviceRef) inIOHIDDeviceRef
+{
+    NSLogDebug(@"(inIOHIDDeviceRef: %p)", inIOHIDDeviceRef);
 
-	// iterate over all IOHIDDevice Window Controllers
-	for (IOHIDDeviceWindowCtrl * ioHIDDeviceWindowCtrl in windowControllers) {
-		// ... if it's the controller for this hid device…
-		if (ioHIDDeviceWindowCtrl._IOHIDDeviceRef == inIOHIDDeviceRef) {
-			// ... then close this window
-			// (removing it from this array will release it
-			// which closes its window and releases all it's retained objects)
-			[windowControllers removeObject:ioHIDDeviceWindowCtrl];
+    // iterate over all IOHIDDevice Window Controllers
+    for (IOHIDDeviceWindowCtrl * ioHIDDeviceWindowCtrl in windowControllers)
+    {
+        // ... if it's the controller for this hid device…
+        if (ioHIDDeviceWindowCtrl._IOHIDDeviceRef == inIOHIDDeviceRef)
+        {
+            // ... then close this window
+            // (removing it from this array will release it
+            // which closes its window and releases all it's retained objects)
+            [windowControllers removeObject:ioHIDDeviceWindowCtrl];
 
-			//			[[ioHIDDeviceWindowCtrl window] performClose:nil];
-			[[ioHIDDeviceWindowCtrl window] close];
-			break;
-		}
-	}
-} // removeWindowForHIDDevice
+            //			[[ioHIDDeviceWindowCtrl window] performClose:nil];
+            [[ioHIDDeviceWindowCtrl window] close];
+            break;
+        }
+    }
+}
 
 @synthesize windowControllers;
 
@@ -162,57 +171,62 @@ static void Handle_DeviceRemovalCallback(void *inContext, IOReturn inResult, voi
 //
 //
 //
-static OSStatus Initialize_HID(void *inContext) {
-	NSLogDebug(@"(context: %p)", inContext);
+static OSStatus Initialize_HID(void *inContext)
+{
+    NSLogDebug(@"(context: %p)", inContext);
 
-	OSStatus result = -1;
+    OSStatus result = -1;
 
-	do {    // TRY / THROW block
-			// create the manager
+    do
+    {    // TRY / THROW block
+        // create the manager
         IOOptionBits ioOptionBits = kIOHIDManagerOptionNone;
         //IOOptionBits ioOptionBits = kIOHIDManagerOptionUsePersistentProperties;
         //IOOptionBits ioOptionBits = kIOHIDManagerOptionUsePersistentProperties | kIOHIDManagerOptionDoNotLoadProperties;
-		gIOHIDManagerRef = IOHIDManagerCreate(kCFAllocatorDefault, ioOptionBits);
-		if (!gIOHIDManagerRef) {
-			NSLog(@"%s: Could not create IOHIDManager.\n", __PRETTY_FUNCTION__);
-			break;  // THROW
-		}
+        gIOHIDManagerRef = IOHIDManagerCreate(kCFAllocatorDefault, ioOptionBits);
+        if (!gIOHIDManagerRef)
+        {
+            NSLog(@"%s: Could not create IOHIDManager.\n", __PRETTY_FUNCTION__);
+            break;  // THROW
+        }
 
-		// register our matching & removal callbacks
-		IOHIDManagerRegisterDeviceMatchingCallback(gIOHIDManagerRef, Handle_DeviceMatchingCallback, inContext);
-		IOHIDManagerRegisterDeviceRemovalCallback(gIOHIDManagerRef, Handle_DeviceRemovalCallback, inContext);
+        // register our matching & removal callbacks
+        IOHIDManagerRegisterDeviceMatchingCallback(gIOHIDManagerRef, Handle_DeviceMatchingCallback, inContext);
+        IOHIDManagerRegisterDeviceRemovalCallback(gIOHIDManagerRef, Handle_DeviceRemovalCallback, inContext);
 
-		// schedule us with the run loop
-		IOHIDManagerScheduleWithRunLoop(gIOHIDManagerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+        // schedule us with the run loop
+        IOHIDManagerScheduleWithRunLoop(gIOHIDManagerRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 
-		// setup matching dictionary
-		IOHIDManagerSetDeviceMatching(gIOHIDManagerRef, NULL);
+        // setup matching dictionary
+        IOHIDManagerSetDeviceMatching(gIOHIDManagerRef, NULL);
 
-		// open it
-		IOReturn tIOReturn = IOHIDManagerOpen(gIOHIDManagerRef, kIOHIDOptionsTypeNone);
-		if (kIOReturnSuccess != tIOReturn) {
-			const char *errorStringPtr = GetMacOSStatusErrorString(tIOReturn);
-			const char *commentStringPtr = GetMacOSStatusCommentString(tIOReturn);
-			NSLog(@"%s: IOHIDManagerOpen error: 0x%08u (\"%s\" - \"%s\").\n",
-			      __PRETTY_FUNCTION__,
-				  tIOReturn,
-			      errorStringPtr,
-			      commentStringPtr);
-			break;  // THROW
-		}
+        // open it
+        IOReturn tIOReturn = IOHIDManagerOpen(gIOHIDManagerRef, kIOHIDOptionsTypeNone);
+        if (kIOReturnSuccess != tIOReturn)
+        {
+            const char *errorStringPtr = GetMacOSStatusErrorString(tIOReturn);
+            const char *commentStringPtr = GetMacOSStatusCommentString(tIOReturn);
+            NSLog(@"%s: IOHIDManagerOpen error: 0x%08u (\"%s\" - \"%s\").\n",
+                    __PRETTY_FUNCTION__,
+                    tIOReturn,
+                    errorStringPtr,
+                    commentStringPtr);
+            break;  // THROW
+        }
 
-		NSLogDebug(@"IOHIDManager (%p) creaded and opened!", (void *) gIOHIDManagerRef);
-	} while (false);
+        NSLogDebug(@"IOHIDManager (%p) creaded and opened!", (void *) gIOHIDManagerRef);
+    } while (false);
 
 Oops:;
-	return (result);
-}   // Initialize_HID
+    return (result);
+}
 
 //
 //
 //
-static OSStatus Terminate_HID(void *inContext) {
-	NSLogDebug();
+static OSStatus Terminate_HID(void *inContext)
+{
+    NSLogDebug();
 #if false
     IOHIDManagerSaveToPropertyDomain(gIOHIDManagerRef,
                                      kCFPreferencesCurrentApplication,
@@ -221,36 +235,39 @@ static OSStatus Terminate_HID(void *inContext) {
                                      kIOHIDOptionsTypeNone);
 	return (IOHIDManagerClose(gIOHIDManagerRef, kIOHIDOptionsTypeNone));
 #else
-	return (noErr);
+    return (noErr);
 #endif
 }
 
 //
 // this is called once for each connected device
 //
-static void Handle_DeviceMatchingCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
+static void Handle_DeviceMatchingCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef)
+{
 #pragma unused (  inContext, inSender )
 
-	NSLogDebug(@"(context: %p, result: 0x%08X, sender: %p, device: %p)",
+    NSLogDebug(@"(context: %p, result: 0x%08X, sender: %p, device: %p)",
                inContext, inResult, inSender, (void *) inIOHIDDeviceRef);
 #ifdef DEBUG
 	HIDDumpDeviceInfo(inIOHIDDeviceRef);
 #endif // def DEBUG
     uint32_t vendorID = IOHIDDevice_GetVendorID(inIOHIDDeviceRef);
     uint32_t productID = IOHIDDevice_GetProductID(inIOHIDDeviceRef);
-	if ((vendorID != 0x12BA) || (productID != 0x0030)) {
-		[(__bridge HID_CalibratorAppDelegate *) inContext createWindowForHIDDevice: inIOHIDDeviceRef];
-	}
+	if ((vendorID != 0x12BA) || (productID != 0x0030))
+    {
+        [(__bridge HID_CalibratorAppDelegate *) inContext createWindowForHIDDevice: inIOHIDDeviceRef];
+    }
 } // Handle_DeviceMatchingCallback
 
 //
 // this is called once for each disconnected device
 //
-static void Handle_DeviceRemovalCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef) {
+static void Handle_DeviceRemovalCallback(void *inContext, IOReturn inResult, void *inSender, IOHIDDeviceRef inIOHIDDeviceRef)
+{
 #pragma unused (  inContext, inResult, inSender )
 
-	NSLogDebug("(context: %p, result: 0x%08X, sender: %p, device: %p).\n",
+    NSLogDebug("(context: %p, result: 0x%08X, sender: %p, device: %p).\n",
                inContext, inResult, inSender, (void *) inIOHIDDeviceRef);
 
-	[(__bridge HID_CalibratorAppDelegate *) inContext removeWindowForHIDDevice: inIOHIDDeviceRef];
+    [(__bridge HID_CalibratorAppDelegate *) inContext removeWindowForHIDDevice: inIOHIDDeviceRef];
 } // Handle_DeviceRemovalCallback

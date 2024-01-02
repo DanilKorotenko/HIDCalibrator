@@ -66,7 +66,8 @@
 #pragma mark - public class interface
 //-----------------------------------------------------
 
-@interface HID_CalibratorAppDelegate : NSObject <NSApplicationDelegate> {
+@interface HID_CalibratorAppDelegate : NSObject <NSApplicationDelegate>
+{
 @private
     NSMutableArray * windowControllers;
 }

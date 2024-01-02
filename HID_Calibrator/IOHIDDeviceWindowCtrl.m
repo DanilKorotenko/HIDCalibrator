@@ -45,15 +45,16 @@ static const NSPoint gCascadeDelta = {72.0, 0.0}; // move an inch to right
 #pragma mark - private class interface *
 // ----------------------------------------------------
 
-@interface IOHIDDeviceWindowCtrl () {
+@interface IOHIDDeviceWindowCtrl ()
+{
 @private
     IOHIDDeviceRef _IOHIDDeviceRef;
-	__unsafe_unretained NSString * name;
-	__unsafe_unretained NSMutableArray		*_IOHIDElementModels;	// IOHIDElementModel items
-	__unsafe_unretained IBOutlet NSCollectionView	*collectionView;
+    __unsafe_unretained NSString * name;
+    __unsafe_unretained NSMutableArray		*_IOHIDElementModels;	// IOHIDElementModel items
+    __unsafe_unretained IBOutlet NSCollectionView	*collectionView;
     __unsafe_unretained IBOutlet NSArrayController *arrayController;
     __unsafe_unretained NSView *_IOHIDDeviceView;
-//    __unsafe_unretained IBOutlet NSTextView			*textView;
+    //    __unsafe_unretained IBOutlet NSTextView			*textView;
 }
 -(IOHIDElementModel *) getIOHIDElementModelForIOHIDElementRef:(IOHIDElementRef)inIOHIDElementRef;
 @property (unsafe_unretained) IBOutlet NSView *IOHIDDeviceView;
@@ -67,202 +68,224 @@ static const NSPoint gCascadeDelta = {72.0, 0.0}; // move an inch to right
 //
 // initialization method
 //
-- (id) initWithIOHIDDeviceRef:(IOHIDDeviceRef)inIOHIDDeviceRef {
-	NSLogDebug(@"(IOHIDDeviceRef) %@", inIOHIDDeviceRef);
-	self = [super initWithWindowNibName:@"IOHIDDeviceWindow"];
-	if (self) {
+- (id)initWithIOHIDDeviceRef:(IOHIDDeviceRef)inIOHIDDeviceRef
+{
+    NSLogDebug(@"(IOHIDDeviceRef) %@", inIOHIDDeviceRef);
+    self = [super initWithWindowNibName:@"IOHIDDeviceWindow"];
+    if (self)
+    {
         // Initialization code here.
-		_IOHIDElementModels = nil;
+        _IOHIDElementModels = nil;
         // if 1st time through…
-		if (NSEqualPoints(gCascadePoint, NSZeroPoint)) {
-			NSRect screenFrame = [[NSScreen mainScreen] visibleFrame];
+        if (NSEqualPoints(gCascadePoint, NSZeroPoint))
+        {
+            NSRect screenFrame = [[NSScreen mainScreen] visibleFrame];
             // NSRect frame = [[self window] frame];
-			gCascadePoint = NSMakePoint(NSMinX(screenFrame), NSMaxY(screenFrame));
-		}
+            gCascadePoint = NSMakePoint(NSMinX(screenFrame), NSMaxY(screenFrame));
+        }
 
-		NSLogDebug(@"cascadePoint: %@", NSStringFromPoint(gCascadePoint));
-		[[self window] setFrameTopLeftPoint:gCascadePoint];
+        NSLogDebug(@"cascadePoint: %@", NSStringFromPoint(gCascadePoint));
+        [[self window] setFrameTopLeftPoint:gCascadePoint];
 
-		gCascadePoint.x += gCascadeDelta.x;
-		gCascadePoint.y += gCascadeDelta.y;
+        gCascadePoint.x += gCascadeDelta.x;
+        gCascadePoint.y += gCascadeDelta.y;
 
-		self._IOHIDDeviceRef = inIOHIDDeviceRef;
+        self._IOHIDDeviceRef = inIOHIDDeviceRef;
 
         // now make it visible
-		[self showWindow:self];
+        [self showWindow:self];
 
         // bring it to the front
         // [[self window] makeKeyAndOrderFront:NULL];
-	}
+    }
 
-	return (self);
-}                                                                               // init
+    return (self);
+}
 
 //
 //
 //
-- (void) dealloc {
-	NSLogDebug();
-	_IOHIDDeviceRef = nil;
-	for (IOHIDElementModel *ioHIDElementModel in _IOHIDElementModels) {
-		ioHIDElementModel._IOHIDElementRef = nil;
-	}
+- (void) dealloc
+{
+    NSLogDebug();
+    _IOHIDDeviceRef = nil;
+    for (IOHIDElementModel *ioHIDElementModel in _IOHIDElementModels)
+    {
+        ioHIDElementModel._IOHIDElementRef = nil;
+    }
 
-	[arrayController setContent:NULL];
+    [arrayController setContent:NULL];
 
     // back up our cascade point by one delta
-	gCascadePoint.x -= gCascadeDelta.x;
-	gCascadePoint.y -= gCascadeDelta.y;
-}                                                                               // dealloc
+    gCascadePoint.x -= gCascadeDelta.x;
+    gCascadePoint.y -= gCascadeDelta.y;
+}
 
 //
 //
 //
-- (void) windowDidLoad {
-	NSLogDebug();
-	[super windowDidLoad];
+- (void) windowDidLoad
+{
+    NSLogDebug();
+    [super windowDidLoad];
 
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
 #if false
-	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-	[nc addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:[self window]];
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:[self window]];
 #endif                                                                          // if false
-	NSSize size = NSMakeSize(480.f, 32.f);
-	[collectionView setMinItemSize:size];
-	[collectionView setMaxItemSize:size];
-}                                                                               // windowDidLoad
+    NSSize size = NSMakeSize(480.f, 32.f);
+    [collectionView setMinItemSize:size];
+    [collectionView setMaxItemSize:size];
+}
 
-- (void) windowWillClose:(NSNotification *)aNotification {
-	NSLogDebug();
+- (void) windowWillClose:(NSNotification *)aNotification
+{
+    NSLogDebug();
 
     // IOHIDDeviceRegisterInputValueCallback(_IOHIDDeviceRef, NULL, self);
 
     // [self autorelease];
-}                                                                               // windowWillClose
+}
 
 //
 //
 //
-- (void) set_IOHIDDeviceRef:(IOHIDDeviceRef)inIOHIDDeviceRef {
-	NSLogDebug(@"(IOHIDDeviceRef: %p)", inIOHIDDeviceRef);
-	if (_IOHIDDeviceRef != inIOHIDDeviceRef) {
-		_IOHIDDeviceRef = inIOHIDDeviceRef;
-		if (inIOHIDDeviceRef) {
+- (void) set_IOHIDDeviceRef:(IOHIDDeviceRef)inIOHIDDeviceRef
+{
+    NSLogDebug(@"(IOHIDDeviceRef: %p)", inIOHIDDeviceRef);
+    if (_IOHIDDeviceRef != inIOHIDDeviceRef)
+    {
+        _IOHIDDeviceRef = inIOHIDDeviceRef;
+        if (inIOHIDDeviceRef)
+        {
             // use the device name to title the window
-			CFStringRef devCFStringRef = Copy_DeviceName(inIOHIDDeviceRef);
-			if (devCFStringRef) {
-				[[self window] setTitle:(__bridge NSString *)devCFStringRef];
-				CFRelease(devCFStringRef);
-			}
+            CFStringRef devCFStringRef = Copy_DeviceName(inIOHIDDeviceRef);
+            if (devCFStringRef)
+            {
+                [[self window] setTitle:(__bridge NSString *)devCFStringRef];
+                CFRelease(devCFStringRef);
+            }
 
             // iterate over all this devices elements creating model objects for each one
-			NSMutableArray *tArray = [NSMutableArray array];
+            NSMutableArray *tArray = [NSMutableArray array];
 
-			NSArray *elements = (__bridge_transfer NSArray *)
-                IOHIDDeviceCopyMatchingElements(inIOHIDDeviceRef,
-                                                NULL,
-                                                kIOHIDOptionsTypeNone);
-			if (elements) {
-				for (id element in elements) {
-					IOHIDElementRef tIOHIDElementRef = (__bridge IOHIDElementRef) element;
+            NSArray *elements = (__bridge_transfer NSArray *)
+            IOHIDDeviceCopyMatchingElements(inIOHIDDeviceRef,
+                                            NULL,
+                                            kIOHIDOptionsTypeNone);
+            if (elements)
+            {
+                for (id element in elements)
+                {
+                    IOHIDElementRef tIOHIDElementRef = (__bridge IOHIDElementRef) element;
 
-					IOHIDElementType tIOHIDElementType = IOHIDElementGetType(tIOHIDElementRef);
-					if (tIOHIDElementType > kIOHIDElementTypeInput_ScanCodes) {
-						continue;
-					}
+                    IOHIDElementType tIOHIDElementType = IOHIDElementGetType(tIOHIDElementRef);
+                    if (tIOHIDElementType > kIOHIDElementTypeInput_ScanCodes)
+                    {
+                        continue;
+                    }
 
-					uint32_t reportSize = IOHIDElementGetReportSize(tIOHIDElementRef);
-					uint32_t reportCount = IOHIDElementGetReportCount(tIOHIDElementRef);
-					if ((reportSize * reportCount) > 64) {
-						continue;
-					}
+                    uint32_t reportSize = IOHIDElementGetReportSize(tIOHIDElementRef);
+                    uint32_t reportCount = IOHIDElementGetReportCount(tIOHIDElementRef);
+                    if ((reportSize * reportCount) > 64)
+                    {
+                        continue;
+                    }
 
-					uint32_t usagePage = IOHIDElementGetUsagePage(tIOHIDElementRef);
-					uint32_t usage = IOHIDElementGetUsage(tIOHIDElementRef);
-					if (!usagePage || !usage) {
-						continue;
-					}
-					if (-1 == usage) {
-						continue;
-					}
+                    uint32_t usagePage = IOHIDElementGetUsagePage(tIOHIDElementRef);
+                    uint32_t usage = IOHIDElementGetUsage(tIOHIDElementRef);
+                    if (!usagePage || !usage)
+                    {
+                        continue;
+                    }
+                    if (-1 == usage)
+                    {
+                        continue;
+                    }
 #ifdef DEBUG
-					//HIDDumpElementInfo(tIOHIDElementRef);
+                    //HIDDumpElementInfo(tIOHIDElementRef);
 #endif
 
                     // allocate an element model
-					IOHIDElementModel *ioHIDElementModel = [[IOHIDElementModel alloc] initWithIOHIDElementRef:tIOHIDElementRef];
+                    IOHIDElementModel *ioHIDElementModel = [[IOHIDElementModel alloc] initWithIOHIDElementRef:tIOHIDElementRef];
 
                     // set the element model object as a property of the IOHIDElementRef
                     // (so we can find it with getIOHIDElementModelForIOHIDElementRef)
-					IOHIDElementSetProperty(tIOHIDElementRef,
-					                        CFSTR("Element Model"),
-					                        (__bridge CFTypeRef) ioHIDElementModel);
+                    IOHIDElementSetProperty(tIOHIDElementRef,
+                                            CFSTR("Element Model"),
+                                            (__bridge CFTypeRef) ioHIDElementModel);
 
                     // and add it to our array
-					[tArray addObject:ioHIDElementModel];
-				}
-			}
+                    [tArray addObject:ioHIDElementModel];
+                }
+            }
 
-			self._IOHIDElementModels = tArray;
+            self._IOHIDElementModels = tArray;
 
             // compute our frame based on the number of elements to display
-			NSRect frame = [[self window] frame];
-			frame.size.height = _IOHIDDeviceView.frame.size.height + (32.f * ([tArray count] + 1));
-			[collectionView setFrame:frame];
+            NSRect frame = [[self window] frame];
+            frame.size.height = _IOHIDDeviceView.frame.size.height + (32.f * ([tArray count] + 1));
+            [collectionView setFrame:frame];
             NSLogDebug(@"collectionView.frame: %@", NSStringFromRect(frame));
 
             // use screen frame to move our window to the top
-			NSRect screenFrame = [[NSScreen mainScreen] visibleFrame];
-			frame.origin.y = screenFrame.size.height;
+            NSRect screenFrame = [[NSScreen mainScreen] visibleFrame];
+            frame.origin.y = screenFrame.size.height;
             // limit window size to height of screen
-			if (frame.size.height > screenFrame.size.height) {
-				frame.origin.y = frame.size.height = screenFrame.size.height;
-			}
+            if (frame.size.height > screenFrame.size.height)
+            {
+                frame.origin.y = frame.size.height = screenFrame.size.height;
+            }
 
-			[[self window] setFrame:frame display:YES animate:YES];
+            [[self window] setFrame:frame display:YES animate:YES];
 
             // use this to also set the max size
-			[[self window] setMaxSize:NSMakeSize(NSWidth(frame), NSHeight(frame))];
+            [[self window] setMaxSize:NSMakeSize(NSWidth(frame), NSHeight(frame))];
 
-			IOHIDDeviceRegisterInputValueCallback(inIOHIDDeviceRef,
-			                                      Handle_IOHIDValueCallback,
-			                                      (__bridge void *)(self));
-		}
-	}
-}                                                                               // set_IOHIDDeviceRef
+            IOHIDDeviceRegisterInputValueCallback(inIOHIDDeviceRef,
+                                                  Handle_IOHIDValueCallback,
+                                                  (__bridge void *)(self));
+        }
+    }
+}
 
 //
 // Make your array KVO compliant.
 //
 //
-- (void) insertObject:(IOHIDElementModel *)inObj in_IOHIDElementModelsAtIndex:(NSUInteger)inIndex {
-	NSLogDebug(@"(obj: %p, index: %lu)", inObj, (unsigned long) inIndex);
-	[_IOHIDElementModels insertObject:inObj atIndex:inIndex];
-}                                                                               // insertObject
+- (void) insertObject:(IOHIDElementModel *)inObj in_IOHIDElementModelsAtIndex:(NSUInteger)inIndex
+{
+    NSLogDebug(@"(obj: %p, index: %lu)", inObj, (unsigned long) inIndex);
+    [_IOHIDElementModels insertObject:inObj atIndex:inIndex];
+}
 
 //
 //
 //
-- (void) removeObjectFrom_IOHIDElementModelsAtIndex:(NSUInteger)inIndex {
-	NSLogDebug(@"(index: %lu)", (unsigned long) inIndex);
-	[_IOHIDElementModels removeObjectAtIndex:inIndex];
-}                                                                               // removeObjectFrom_IOHIDElementModelsAtIndex
+- (void) removeObjectFrom_IOHIDElementModelsAtIndex:(NSUInteger)inIndex
+{
+    NSLogDebug(@"(index: %lu)", (unsigned long) inIndex);
+    [_IOHIDElementModels removeObjectAtIndex:inIndex];
+}
 
 //
 //
 //
-- (IOHIDElementModel *) getIOHIDElementModelForIOHIDElementRef:(IOHIDElementRef)inIOHIDElementRef {
-	IOHIDElementModel *result = (__bridge IOHIDElementModel *) IOHIDElementGetProperty(inIOHIDElementRef,
+- (IOHIDElementModel *) getIOHIDElementModelForIOHIDElementRef:(IOHIDElementRef)inIOHIDElementRef
+{
+    IOHIDElementModel *result = (__bridge IOHIDElementModel *) IOHIDElementGetProperty(inIOHIDElementRef,
                                                                                        CFSTR("Element Model"));
 
-	return (result);
-}                                                                               // getIOHIDElementModelForIOHIDElementRef
+    return (result);
+}
 
 -(void)mouseUp:(NSEvent *)inEvent
 {
 #pragma unused (inEvent)
-	NSLogDebug();
-    for (IOHIDElementModel * elementModel in _IOHIDElementModels) {
+    NSLogDebug();
+    for (IOHIDElementModel * elementModel in _IOHIDElementModels)
+    {
         double phyVal = [elementModel phyVal];
         [elementModel setSatMin:phyVal];
         [elementModel setSatMax:phyVal];
@@ -287,94 +310,109 @@ static const NSPoint gCascadeDelta = {72.0, 0.0}; // move an inch to right
 //
 // get name of device
 //
-static CFStringRef Copy_DeviceName(IOHIDDeviceRef inIOHIDDeviceRef) {
-	CFStringRef result = NULL;
+static CFStringRef Copy_DeviceName(IOHIDDeviceRef inIOHIDDeviceRef)
+{
+    CFStringRef result = NULL;
 
-	if (inIOHIDDeviceRef) {
-		CFStringRef manCFStringRef = IOHIDDevice_GetManufacturer(inIOHIDDeviceRef);
-		if (manCFStringRef) {
+    if (inIOHIDDeviceRef)
+    {
+        CFStringRef manCFStringRef = IOHIDDevice_GetManufacturer(inIOHIDDeviceRef);
+        if (manCFStringRef)
+        {
             // make a copy that we can CFRelease later
-			CFMutableStringRef tCFStringRef = CFStringCreateMutableCopy(kCFAllocatorDefault,
-			                                                            0,
-			                                                            manCFStringRef);
+            CFMutableStringRef tCFStringRef = CFStringCreateMutableCopy(kCFAllocatorDefault,
+                                                                        0,
+                                                                        manCFStringRef);
 
             // trim off any trailing spaces
-			while (CFStringHasSuffix(tCFStringRef,
+            while (CFStringHasSuffix(tCFStringRef,
                                      CFSTR(" ")))
-			{
-				CFIndex cnt = CFStringGetLength(tCFStringRef);
-				if (!cnt) {
-					break;
-				}
+            {
+                CFIndex cnt = CFStringGetLength(tCFStringRef);
+                if (!cnt)
+                {
+                    break;
+                }
 
-				CFStringDelete(tCFStringRef,
-				               CFRangeMake(cnt -
-				                           1,
-				                           1));
-			}
+                CFStringDelete(tCFStringRef,
+                               CFRangeMake(cnt -
+                                           1,
+                                           1));
+            }
 
-			manCFStringRef = tCFStringRef;
-		}
+            manCFStringRef = tCFStringRef;
+        }
 
-		uint32_t vendorID = IOHIDDevice_GetVendorID(inIOHIDDeviceRef);
-		if (!manCFStringRef) {
-			manCFStringRef = HIDCopyVendorNameFromVendorID(vendorID);
-			if (!manCFStringRef) {
-				manCFStringRef = CFStringCreateWithFormat(kCFAllocatorDefault,
-				                                          NULL,
+        uint32_t vendorID = IOHIDDevice_GetVendorID(inIOHIDDeviceRef);
+        if (!manCFStringRef)
+        {
+            manCFStringRef = HIDCopyVendorNameFromVendorID(vendorID);
+            if (!manCFStringRef)
+            {
+                manCFStringRef = CFStringCreateWithFormat(kCFAllocatorDefault,
+                                                          NULL,
                                                           CFSTR("vendor: %d"),
-				                                          vendorID);
-			}
-		}
+                                                          vendorID);
+            }
+        }
 
-		CFStringRef prodCFStringRef = IOHIDDevice_GetProduct(inIOHIDDeviceRef);
-		if (prodCFStringRef) {
+        CFStringRef prodCFStringRef = IOHIDDevice_GetProduct(inIOHIDDeviceRef);
+        if (prodCFStringRef)
+        {
             // make a copy that we can CFRelease later
-			prodCFStringRef = CFStringCreateCopy(kCFAllocatorDefault,
-			                                     prodCFStringRef);
-		} else {
+            prodCFStringRef = CFStringCreateCopy(kCFAllocatorDefault,
+                                                 prodCFStringRef);
+        }
+        else
+        {
             // use the product ID
-			uint32_t productID = IOHIDDevice_GetProductID(inIOHIDDeviceRef);
-			if (productID) {
-				prodCFStringRef = HIDCopyProductNameFromVendorProductID(vendorID,
-				                                                        productID);
-				if (!prodCFStringRef) {
+            uint32_t productID = IOHIDDevice_GetProductID(inIOHIDDeviceRef);
+            if (productID)
+            {
+                prodCFStringRef = HIDCopyProductNameFromVendorProductID(vendorID,
+                                                                        productID);
+                if (!prodCFStringRef)
+                {
                     // to make a product string
-					prodCFStringRef = CFStringCreateWithFormat(kCFAllocatorDefault,
-					                                           NULL,
+                    prodCFStringRef = CFStringCreateWithFormat(kCFAllocatorDefault,
+                                                               NULL,
                                                                CFSTR("%@ - product id % d"),
-					                                           manCFStringRef,
-					                                           productID);
-				}
-			}
-		}
+                                                               manCFStringRef,
+                                                               productID);
+                }
+            }
+        }
 
-		assert(prodCFStringRef);
+        assert(prodCFStringRef);
         // if the product name begins with the manufacturer string...
-		if (CFStringHasPrefix(prodCFStringRef,
-		                      manCFStringRef))
-		{
+        if (CFStringHasPrefix(prodCFStringRef,
+                              manCFStringRef))
+        {
             // then just use the product name
-			result = CFStringCreateCopy(kCFAllocatorDefault,
-			                            prodCFStringRef);
-		} else {
+            result = CFStringCreateCopy(kCFAllocatorDefault,
+                                        prodCFStringRef);
+        }
+        else
+        {
             // append the product name to the manufacturer
-			result = CFStringCreateWithFormat(kCFAllocatorDefault,
-			                                  NULL,
-			                                  CFSTR("%@ - %@"),
-			                                  manCFStringRef,
-			                                  prodCFStringRef);
-		}
-		if (manCFStringRef) {
-			CFRelease(	manCFStringRef);
-		}
-		if (prodCFStringRef) {
-			CFRelease(	prodCFStringRef);
-		}
-	}
+            result = CFStringCreateWithFormat(kCFAllocatorDefault,
+                                              NULL,
+                                              CFSTR("%@ - %@"),
+                                              manCFStringRef,
+                                              prodCFStringRef);
+        }
+        if (manCFStringRef)
+        {
+            CFRelease(	manCFStringRef);
+        }
+        if (prodCFStringRef)
+        {
+            CFRelease(	prodCFStringRef);
+        }
+    }
 
-	return (result);
-}                                                                               // Copy_DeviceName
+    return (result);
+}
 
 //
 //
@@ -384,47 +422,52 @@ static void Handle_IOHIDValueCallback(void *		inContext,
                                       void *		inSender,
                                       IOHIDValueRef inIOHIDValueRef) {
 #pragma unused( inContext, inResult, inSender )
-	IOHIDDeviceWindowCtrl *tIOHIDDeviceWindowCtrl = (__bridge IOHIDDeviceWindowCtrl *) inContext;
+    IOHIDDeviceWindowCtrl *tIOHIDDeviceWindowCtrl = (__bridge IOHIDDeviceWindowCtrl *) inContext;
     // IOHIDDeviceRef tIOHIDDeviceRef = (IOHIDDeviceRef) inSender;
 
     // NSLogDebug(@"(context: %p, result: %u, sender: %p, valueRef: %p", inContext, inResult, inSender, inIOHIDValueRef);
 
-	do {
+    do
+    {
         // is our device still valid?
-		if (!tIOHIDDeviceWindowCtrl._IOHIDDeviceRef) {
-			NSLogDebug(@"tIOHIDDeviceWindowCtrl._IOHIDDeviceRef == NULL");
-			break;                                                              // (no)
-		}
+        if (!tIOHIDDeviceWindowCtrl._IOHIDDeviceRef)
+        {
+            NSLogDebug(@"tIOHIDDeviceWindowCtrl._IOHIDDeviceRef == NULL");
+            break;                                                              // (no)
+        }
 
 #if false
         // is this value for this device?
-		if (tIOHIDDeviceRef != tIOHIDDeviceWindowCtrl._IOHIDDeviceRef) {
-			NSLogDebug(@"tIOHIDDeviceRef (%p) != _IOHIDDeviceRef (%p)",
-			           tIOHIDDeviceRef,
-			           tIOHIDDeviceWindowCtrl._IOHIDDeviceRef);
-			break;                                                              // (no)
-		}
+        if (tIOHIDDeviceRef != tIOHIDDeviceWindowCtrl._IOHIDDeviceRef) {
+            NSLogDebug(@"tIOHIDDeviceRef (%p) != _IOHIDDeviceRef (%p)",
+                       tIOHIDDeviceRef,
+                       tIOHIDDeviceWindowCtrl._IOHIDDeviceRef);
+            break;                                                              // (no)
+        }
 
 #endif                                                                          // if false
         // is this value's element valid?
-		IOHIDElementRef tIOHIDElementRef = IOHIDValueGetElement(inIOHIDValueRef);
-		if (!tIOHIDElementRef) {
-			NSLogDebug(@"tIOHIDElementRef == NULL");
-			break;                                                              // (no)
-		}
+        IOHIDElementRef tIOHIDElementRef = IOHIDValueGetElement(inIOHIDValueRef);
+        if (!tIOHIDElementRef)
+        {
+            NSLogDebug(@"tIOHIDElementRef == NULL");
+            break;                                                              // (no)
+        }
 
         // length ok?
-		CFIndex length = IOHIDValueGetLength(inIOHIDValueRef);
-		if (length > sizeof(double_t)) {
-			break;                                                              // (no)
-		}
+        CFIndex length = IOHIDValueGetLength(inIOHIDValueRef);
+        if (length > sizeof(double_t))
+        {
+            break;                                                              // (no)
+        }
 
         // find the element for this IOHIDElementRef
-		IOHIDElementModel *tIOHIDElementModel = [tIOHIDDeviceWindowCtrl getIOHIDElementModelForIOHIDElementRef:tIOHIDElementRef];
-		if (tIOHIDElementModel) {
+        IOHIDElementModel *tIOHIDElementModel = [tIOHIDDeviceWindowCtrl getIOHIDElementModelForIOHIDElementRef:tIOHIDElementRef];
+        if (tIOHIDElementModel)
+        {
             // update its value
-			tIOHIDElementModel.phyVal = IOHIDValueGetScaledValue(inIOHIDValueRef,
-			                                                     kIOHIDValueScaleTypePhysical);
-		}
-	} while (false);
-}                                                                               // Handle_IOHIDValueCallback
+            tIOHIDElementModel.phyVal = IOHIDValueGetScaledValue(inIOHIDValueRef,
+                                                                 kIOHIDValueScaleTypePhysical);
+        }
+    } while (false);
+}
