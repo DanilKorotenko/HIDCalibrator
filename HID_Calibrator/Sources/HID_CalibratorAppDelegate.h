@@ -44,9 +44,6 @@
  Copyright (C) 2014 Apple Inc. All Rights Reserved.
  
  */
-//*****************************************************
-#pragma mark * complation directives *
-//-----------------------------------------------------
 
 //*****************************************************
 #pragma mark - includes & imports
@@ -55,24 +52,10 @@
 #import <Cocoa/Cocoa.h>
 
 //*****************************************************
-#pragma mark - typedef's, struct's, enums, defines, etc.
-//-----------------------------------------------------
-
-//*****************************************************
-#pragma mark - exported globals
-//-----------------------------------------------------
-
-//*****************************************************
 #pragma mark - public class interface
 //-----------------------------------------------------
 
 @interface HID_CalibratorAppDelegate : NSObject <NSApplicationDelegate>
-{
-@private
-    NSMutableArray * windowControllers;
-}
-
-@property ( nonatomic, readwrite) NSMutableArray * windowControllers;
 
 @end
 //-----------------------------------------------------

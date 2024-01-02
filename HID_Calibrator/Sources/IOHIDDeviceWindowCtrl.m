@@ -16,6 +16,9 @@
 #import "IOHIDElementModel.h"
 
 #import "IOHIDDeviceWindowCtrl.h"
+
+#import "HID_Calibrator_Common.h"
+
 // ****************************************************
 #pragma mark - typedef's, struct's, enums, defines, etc. *
 // ----------------------------------------------------
@@ -321,7 +324,7 @@ static CFStringRef Copy_DeviceName(IOHIDDeviceRef inIOHIDDeviceRef)
         {
             // make a copy that we can CFRelease later
             CFMutableStringRef tCFStringRef = CFStringCreateMutableCopy(kCFAllocatorDefault,
-                0, manCFStringRef);
+                                                                        0, manCFStringRef);
 
             // trim off any trailing spaces
             while (CFStringHasSuffix(tCFStringRef, CFSTR(" ")))
@@ -333,7 +336,7 @@ static CFStringRef Copy_DeviceName(IOHIDDeviceRef inIOHIDDeviceRef)
                 }
 
                 CFStringDelete(tCFStringRef,
-                    CFRangeMake(cnt - 1, 1));
+                               CFRangeMake(cnt - 1, 1));
             }
 
             manCFStringRef = tCFStringRef;
@@ -346,7 +349,7 @@ static CFStringRef Copy_DeviceName(IOHIDDeviceRef inIOHIDDeviceRef)
             if (!manCFStringRef)
             {
                 manCFStringRef = CFStringCreateWithFormat(kCFAllocatorDefault,
-                    NULL, CFSTR("vendor: %d"), vendorID);
+                                                          NULL, CFSTR("vendor: %d"), vendorID);
             }
         }
 
@@ -363,13 +366,13 @@ static CFStringRef Copy_DeviceName(IOHIDDeviceRef inIOHIDDeviceRef)
             if (productID)
             {
                 prodCFStringRef = HIDCopyProductNameFromVendorProductID(vendorID,
-                    productID);
+                                                                        productID);
                 if (!prodCFStringRef)
                 {
                     // to make a product string
                     prodCFStringRef = CFStringCreateWithFormat(kCFAllocatorDefault,
-                        NULL,
-                        CFSTR("%@ - product id % d"), manCFStringRef, productID);
+                                                               NULL,
+                                                               CFSTR("%@ - product id % d"), manCFStringRef, productID);
                 }
             }
         }
@@ -385,8 +388,8 @@ static CFStringRef Copy_DeviceName(IOHIDDeviceRef inIOHIDDeviceRef)
         {
             // append the product name to the manufacturer
             result = CFStringCreateWithFormat(kCFAllocatorDefault,
-                NULL,
-                CFSTR("%@ - %@"), manCFStringRef, prodCFStringRef);
+                                              NULL,
+                                              CFSTR("%@ - %@"), manCFStringRef, prodCFStringRef);
         }
 
         if (manCFStringRef)
@@ -455,7 +458,7 @@ static void Handle_IOHIDValueCallback(void *		inContext,
         {
             // update its value
             tIOHIDElementModel.phyVal = IOHIDValueGetScaledValue(inIOHIDValueRef,
-                kIOHIDValueScaleTypePhysical);
+                                                                 kIOHIDValueScaleTypePhysical);
         }
     } while (false);
 }
