@@ -27,6 +27,18 @@ static NSString *const kIOHIDDevice_QueueKey =          @"DeviceQueueRef";
     return [[HID_Device alloc] initWithIOHIDDevice:aDeviceRef];
 }
 
++ (NSDictionary *)deviceUsageStrings
+{
+    static NSDictionary *result = nil;
+    if (nil == result)
+    {
+        NSString *pathToResourceFile = [[NSBundle bundleForClass:[self class]]
+            pathForResource:@"HID_device_usage_strings" ofType:@"plist"];
+        result = [NSDictionary dictionaryWithContentsOfFile:pathToResourceFile];
+    }
+    return result;
+}
+
 - (instancetype)initWithIOHIDDevice:(IOHIDDeviceRef)aDeviceRef
 {
     self = [super init];
@@ -49,16 +61,38 @@ static NSString *const kIOHIDDevice_QueueKey =          @"DeviceQueueRef";
     return self;
 }
 
+- (BOOL)isEqual:(id)other
+{
+    if (other == self)
+    {
+        return YES;
+    }
+    else if (![super isEqual:other])
+    {
+        return NO;
+    }
+    else
+    {
+        HID_Device *otherDevice = (HID_Device *)other;
+        return _deviceRef == otherDevice->_deviceRef;
+    }
+}
+
+- (NSUInteger)hash
+{
+    return (NSUInteger)_deviceRef;
+}
+
 - (NSString *)description
 {
     NSDictionary *propDict =
     @{
-        @"manufacturer" :   self.manufacturer ? @"<none>" : self.manufacturer,
-        @"product":         self.product ? @"<none>" : self.product,
+        @"manufacturer" :   self.manufacturer ? self.manufacturer : @"<none>",
+        @"product":         self.product ? self.product : @"<none>",
         @"vendorID":        @(self.vendorID),
-        //HIDGetVendorNameFromVendorID
-        @"productID":       @(self.productID)
-        //HIDGetProductNameFromVendorProductID
+        @"vendorName":      self.vendorName ? self.vendorName : @"<none>",
+        @"productID":       @(self.productID),
+        @"productName":      self.productName ? self.productName : @"<none>"
     };
 
 //    uint32_t usagePage = IOHIDDevice_GetUsagePage(inIOHIDDeviceRef);
@@ -175,7 +209,7 @@ static NSString *const kIOHIDDevice_QueueKey =          @"DeviceQueueRef";
 
 #pragma mark -
 
--(NSString *)manufacturer
+- (NSString *)manufacturer
 {
     NSString *val = [self.properties objectForKey:@kIOHIDManufacturerKey];
     if (!val)
@@ -184,6 +218,7 @@ static NSString *const kIOHIDDevice_QueueKey =          @"DeviceQueueRef";
         if (tCFTypeRef)
         {
             val = (__bridge NSString *)tCFTypeRef;
+            val = [val stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
             [self.properties setObject:val forKey:@kIOHIDManufacturerKey];
         }
     }
@@ -220,6 +255,25 @@ static NSString *const kIOHIDDevice_QueueKey =          @"DeviceQueueRef";
     return val.integerValue;
 }
 
+- (NSString *)vendorName
+{
+    NSString *val = [self.properties objectForKey:@"vendorName"];
+    if (!val)
+    {
+        NSString *vendorKey = [NSString stringWithFormat:@"%ld", (long)self.vendorID];
+        NSDictionary *vendorDictionary = [[HID_Device deviceUsageStrings] objectForKey:vendorKey];
+        if (vendorDictionary)
+        {
+            val = [vendorDictionary objectForKey:@"Name"];
+            if (val)
+            {
+                [self.properties setObject:val forKey:@"vendorName"];
+            }
+        }
+    }
+    return val;
+}
+
 - (NSInteger)productID
 {
     NSNumber *val = [self.properties objectForKey:@kIOHIDProductIDKey];
@@ -233,6 +287,27 @@ static NSString *const kIOHIDDevice_QueueKey =          @"DeviceQueueRef";
         }
     }
     return val.integerValue;
+}
+
+- (NSString *)productName
+{
+    NSString *val = [self.properties objectForKey:@"productName"];
+    if (!val)
+    {
+        NSString *vendorKey = [NSString stringWithFormat:@"%ld", (long)self.vendorID];
+        NSDictionary *vendorDictionary = [[HID_Device deviceUsageStrings] objectForKey:vendorKey];
+        if (vendorDictionary)
+        {
+            NSString *productKey = [NSString stringWithFormat:@"%ld", (long)self.productID];
+            NSDictionary *productDictionary = [vendorDictionary objectForKey:productKey];
+            val = [productDictionary objectForKey:@"Name"];
+            if (val)
+            {
+                [self.properties setObject:val forKey:@"productName"];
+            }
+        }
+    }
+    return val;
 }
 
 @end

@@ -9,12 +9,16 @@
 #import <Cocoa/Cocoa.h>
 
 #include "HID_Utilities_External.h"
+#import "HIDManager/HID_Device.h"
 
 @interface IOHIDDeviceWindowCtrl : NSWindowController
-
--(id)initWithIOHIDDeviceRef:(IOHIDDeviceRef)inIOHIDDeviceRef;
 
 @property (assign, nonatomic, readwrite) IOHIDDeviceRef _IOHIDDeviceRef;
 @property (unsafe_unretained, nonatomic, readwrite) NSArray * _IOHIDElementModels;
 @property (unsafe_unretained, readonly) NSString * name;
+
+- (instancetype)initWithHID_Device:(HID_Device *)aDevice;
+
+@property(readonly) HID_Device *device;
+
 @end

@@ -18,6 +18,7 @@ extern NSString * const kHID_DeviceRemoved;
 + (HID_Manager *)sharedManager;
 
 - (BOOL)checkAccess:(NSError **)anError;
+- (BOOL)requestAccess;
 
 - (BOOL)start:(NSError **)anError;
 - (void)stop;

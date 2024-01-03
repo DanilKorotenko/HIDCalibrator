@@ -19,8 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(readonly) NSString *product;
 
 @property(readonly) NSInteger vendorID;
+@property(readonly) NSString *vendorName;
 @property(readonly) NSInteger productID;
-
+@property(readonly) NSString *productName;
 
 @end
 

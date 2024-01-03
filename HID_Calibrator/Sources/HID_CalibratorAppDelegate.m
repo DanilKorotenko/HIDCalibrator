@@ -43,10 +43,6 @@
 //    
 //    Copyright (C) 2014 Apple Inc. All Rights Reserved.
 //    
-//
-//*****************************************************
-#pragma mark - complation directives
-//-----------------------------------------------------
 
 //*****************************************************
 #pragma mark - includes & imports
@@ -61,6 +57,8 @@
 #import "HID_Calibrator_Common.h"
 
 #import "HIDManager/HID_Manager.h"
+#import "HIDManager/HID_Device.h"
+#import "HIDManager/HID_Error.h"
 
 //*****************************************************
 #pragma mark - local ( static ) function prototypes
@@ -74,9 +72,6 @@
 @interface HID_CalibratorAppDelegate ()
 
 @property (strong) NSMutableArray * windowControllers;
-
-- (void)createWindowForHIDDevice: (IOHIDDeviceRef) inIOHIDDeviceRef;
-- (void)removeWindowForHIDDevice: (IOHIDDeviceRef) inIOHIDDeviceRef;
 
 @end
 
@@ -93,15 +88,33 @@
 
     if (![[HID_Manager sharedManager] checkAccess:&error])
     {
-// request access
+        if ([[HID_Manager sharedManager] requestAccess])
+        {
+            if (![[HID_Manager sharedManager] start:&error])
+            {
+                [NSApp presentError:error];
+                [NSApp terminate:self];
+            }
+        }
+        else
+        {
+            [NSApp presentError:[HID_Error accessDenied]];
+            [NSApp terminate:self];
+        }
     }
     else
     {
         if (![[HID_Manager sharedManager] start:&error])
         {
             [NSApp presentError:error];
+            [NSApp terminate:self];
         }
     }
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceAdded:)
+        name:kHID_DeviceAdded object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceRemoved:)
+        name:kHID_DeviceRemoved object:nil];
 }
 
 - (void)applicationWillTerminate: (NSNotification *) notification
@@ -109,36 +122,47 @@
     [[HID_Manager sharedManager] stop];
 }
 
-- (void)createWindowForHIDDevice: (IOHIDDeviceRef) inIOHIDDeviceRef
-{
-    NSLogDebug(@"(inIOHIDDeviceRef: %p)", inIOHIDDeviceRef);
+#pragma mark -
 
-    // create a new window controller for this device
-    //IOHIDDeviceWindowCtrl *ioHIDDeviceWindowCtrl = [[IOHIDDeviceWindowCtrl alloc] init];
-    IOHIDDeviceWindowCtrl *ioHIDDeviceWindowCtrl = [[IOHIDDeviceWindowCtrl alloc] initWithIOHIDDeviceRef:inIOHIDDeviceRef];
-    [self.windowControllers addObject:ioHIDDeviceWindowCtrl];
+- (void)deviceAdded:(NSNotification *)aNotification
+{
+    HID_Device *device = [aNotification object];
+
+    IOHIDDeviceWindowCtrl * ioHIDDeviceWindowCtrl = [self windowControllerForDevice:device];
+
+    if (nil == ioHIDDeviceWindowCtrl)
+    {
+        IOHIDDeviceWindowCtrl *ioHIDDeviceWindowCtrl = [[IOHIDDeviceWindowCtrl alloc] initWithHID_Device:device];
+        [self.windowControllers addObject:ioHIDDeviceWindowCtrl];
+        [ioHIDDeviceWindowCtrl showWindow:self];
+    }
 }
 
-- (void)removeWindowForHIDDevice: (IOHIDDeviceRef) inIOHIDDeviceRef
+- (void)deviceRemoved:(NSNotification *)aNotification
 {
-    NSLogDebug(@"(inIOHIDDeviceRef: %p)", inIOHIDDeviceRef);
+    HID_Device *device = [aNotification object];
 
-    // iterate over all IOHIDDevice Window Controllers
+    IOHIDDeviceWindowCtrl * ioHIDDeviceWindowCtrl = [self windowControllerForDevice:device];
+
+    if (ioHIDDeviceWindowCtrl)
+    {
+        [self.windowControllers removeObject:ioHIDDeviceWindowCtrl];
+        [[ioHIDDeviceWindowCtrl window] close];
+    }
+}
+
+- (IOHIDDeviceWindowCtrl *)windowControllerForDevice:(HID_Device *)aDevice
+{
+    IOHIDDeviceWindowCtrl *result = nil;
     for (IOHIDDeviceWindowCtrl * ioHIDDeviceWindowCtrl in self.windowControllers)
     {
-        // ... if it's the controller for this hid device…
-        if (ioHIDDeviceWindowCtrl._IOHIDDeviceRef == inIOHIDDeviceRef)
+        if ([ioHIDDeviceWindowCtrl.device isEqual:aDevice])
         {
-            // ... then close this window
-            // (removing it from this array will release it
-            // which closes its window and releases all it's retained objects)
-            [self.windowControllers removeObject:ioHIDDeviceWindowCtrl];
-
-            //			[[ioHIDDeviceWindowCtrl window] performClose:nil];
-            [[ioHIDDeviceWindowCtrl window] close];
+            result = ioHIDDeviceWindowCtrl;
             break;
         }
     }
+    return result;
 }
 
 @end

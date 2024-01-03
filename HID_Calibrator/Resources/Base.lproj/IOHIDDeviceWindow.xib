@@ -14,9 +14,9 @@
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" animationBehavior="default" id="1">
-            <windowStyleMask key="styleMask" titled="YES" miniaturizable="YES" resizable="YES" texturedBackground="YES"/>
+            <windowStyleMask key="styleMask" titled="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" topStrut="YES"/>
             <rect key="contentRect" x="0.0" y="996" width="480" height="125"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1055"/>
@@ -28,7 +28,7 @@
                 <subviews>
                     <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="46" customClass="IOHIDDeviceView">
                         <rect key="frame" x="0.0" y="29" width="482" height="96"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     </customView>
                     <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3">
                         <rect key="frame" x="0.0" y="-1" width="482" height="32"/>
@@ -63,10 +63,7 @@
             </view>
             <toolbar key="toolbar" implicitIdentifier="5985231F-561B-4346-993B-4983F8B8018D" showsBaselineSeparator="NO" prefersToBeShown="NO" displayMode="iconAndLabel" sizeMode="regular" id="32">
                 <allowedToolbarItems>
-                    <toolbarItem implicitItemIdentifier="2DD86582-432E-4CD4-A2C1-1A83332DACBE" label="Toolbar Item" paletteLabel="Toolbar Item" tag="-1" id="41">
-                        <size key="minSize" width="32" height="32"/>
-                        <size key="maxSize" width="32" height="32"/>
-                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="2DD86582-432E-4CD4-A2C1-1A83332DACBE" label="Toolbar Item" paletteLabel="Toolbar Item" tag="-1" sizingBehavior="auto" id="41"/>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="41"/>
@@ -84,6 +81,7 @@
             <declaredKeys>
                 <string>name</string>
             </declaredKeys>
+            <classReference key="objectClass" className="IOHIDElementModel"/>
             <connections>
                 <binding destination="-2" name="contentArray" keyPath="_IOHIDElementModels" id="45"/>
             </connections>

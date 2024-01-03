@@ -5,9 +5,6 @@
 // Created by George Warner on 3/26/11.
 // Copyright 2011 Apple Inc. All rights reserved.
 //
-// ****************************************************
-#pragma mark - complation directives *
-// ----------------------------------------------------
 
 // ****************************************************
 #pragma mark - includes & imports *
@@ -20,10 +17,6 @@
 #import "HID_Calibrator_Common.h"
 
 // ****************************************************
-#pragma mark - typedef's, struct's, enums, defines, etc. *
-// ----------------------------------------------------
-
-// ****************************************************
 #pragma mark - local ( static ) function prototypes *
 // ----------------------------------------------------
 
@@ -34,17 +27,6 @@ static void Handle_IOHIDValueCallback(void *inContext,
                                       IOHIDValueRef inIOHIDValueRef);
 
 // ****************************************************
-#pragma mark - exported globals *
-// ----------------------------------------------------
-
-// ****************************************************
-#pragma mark - local ( static ) globals *
-// ----------------------------------------------------
-
-static NSPoint gCascadePoint = {0.0, 0.0};
-static const NSPoint gCascadeDelta = {72.0, 0.0}; // move an inch to right
-
-// ****************************************************
 #pragma mark - private class interface *
 // ----------------------------------------------------
 
@@ -52,15 +34,19 @@ static const NSPoint gCascadeDelta = {72.0, 0.0}; // move an inch to right
 {
 @private
     IOHIDDeviceRef _IOHIDDeviceRef;
-    __unsafe_unretained NSString * name;
+
     __unsafe_unretained NSMutableArray		*_IOHIDElementModels;	// IOHIDElementModel items
-    __unsafe_unretained IBOutlet NSCollectionView	*collectionView;
-    __unsafe_unretained IBOutlet NSArrayController *arrayController;
-    __unsafe_unretained NSView *_IOHIDDeviceView;
     //    __unsafe_unretained IBOutlet NSTextView			*textView;
 }
+
 -(IOHIDElementModel *) getIOHIDElementModelForIOHIDElementRef:(IOHIDElementRef)inIOHIDElementRef;
-@property (unsafe_unretained) IBOutlet NSView *IOHIDDeviceView;
+
+@property (strong) IBOutlet NSView *IOHIDDeviceView;
+
+@property (strong) HID_Device *device;
+@property (strong) IBOutlet NSCollectionView	*collectionView;
+@property (strong) IBOutlet NSArrayController *arrayController;
+
 @end
 
 // ****************************************************
@@ -68,46 +54,22 @@ static const NSPoint gCascadeDelta = {72.0, 0.0}; // move an inch to right
 // ----------------------------------------------------
 
 @implementation IOHIDDeviceWindowCtrl
-//
-// initialization method
-//
-- (id)initWithIOHIDDeviceRef:(IOHIDDeviceRef)inIOHIDDeviceRef
+
+- (instancetype)initWithHID_Device:(HID_Device *)aDevice
 {
-    NSLogDebug(@"(IOHIDDeviceRef) %@", inIOHIDDeviceRef);
     self = [super initWithWindowNibName:@"IOHIDDeviceWindow"];
     if (self)
     {
+        self.device = aDevice;
+
+        [self setWindowTitle];
+
         // Initialization code here.
         _IOHIDElementModels = nil;
-        // if 1st time through…
-        if (NSEqualPoints(gCascadePoint, NSZeroPoint))
-        {
-            NSRect screenFrame = [[NSScreen mainScreen] visibleFrame];
-            // NSRect frame = [[self window] frame];
-            gCascadePoint = NSMakePoint(NSMinX(screenFrame), NSMaxY(screenFrame));
-        }
-
-        NSLogDebug(@"cascadePoint: %@", NSStringFromPoint(gCascadePoint));
-        [[self window] setFrameTopLeftPoint:gCascadePoint];
-
-        gCascadePoint.x += gCascadeDelta.x;
-        gCascadePoint.y += gCascadeDelta.y;
-
-        self._IOHIDDeviceRef = inIOHIDDeviceRef;
-
-        // now make it visible
-        [self showWindow:self];
-
-        // bring it to the front
-        // [[self window] makeKeyAndOrderFront:NULL];
     }
-
-    return (self);
+    return self;
 }
 
-//
-//
-//
 - (void) dealloc
 {
     NSLogDebug();
@@ -117,30 +79,19 @@ static const NSPoint gCascadeDelta = {72.0, 0.0}; // move an inch to right
         ioHIDElementModel._IOHIDElementRef = nil;
     }
 
-    [arrayController setContent:NULL];
-
-    // back up our cascade point by one delta
-    gCascadePoint.x -= gCascadeDelta.x;
-    gCascadePoint.y -= gCascadeDelta.y;
+    [self.arrayController setContent:NULL];
 }
 
+//- (void) windowDidLoad
+//{
+//    NSLogDebug();
+//    [super windowDidLoad];
 //
-//
-//
-- (void) windowDidLoad
-{
-    NSLogDebug();
-    [super windowDidLoad];
-
-    // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
-#if false
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc addObserver:self selector:@selector(windowWillClose:) name:NSWindowWillCloseNotification object:[self window]];
-#endif                                                                          // if false
-    NSSize size = NSMakeSize(480.f, 32.f);
-    [collectionView setMinItemSize:size];
-    [collectionView setMaxItemSize:size];
-}
+//    // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
+////    NSSize size = NSMakeSize(480.f, 32.f);
+////    [collectionView setMinItemSize:size];
+////    [collectionView setMaxItemSize:size];
+//}
 
 - (void) windowWillClose:(NSNotification *)aNotification
 {
@@ -149,6 +100,45 @@ static const NSPoint gCascadeDelta = {72.0, 0.0}; // move an inch to right
     // IOHIDDeviceRegisterInputValueCallback(_IOHIDDeviceRef, NULL, self);
 
     // [self autorelease];
+}
+
+- (void)setWindowTitle
+{
+    NSMutableString *title = [NSMutableString string];
+
+    if (self.device.manufacturer)
+    {
+        [title appendString:self.device.manufacturer];
+    }
+
+    if (title.length == 0)
+    {
+        if (self.device.vendorName)
+        {
+            [title appendString:self.device.vendorName];
+        }
+    }
+
+    if (title.length == 0)
+    {
+        [title appendFormat:@"vendor %ld", (long)self.device.vendorID];
+    }
+
+    NSString *product = self.device.product;
+
+    if (product.length == 0)
+    {
+        product = self.device.productName;
+    }
+
+    if (product.length == 0)
+    {
+        product = [NSString stringWithFormat:@"- product id: %ld", (long)self.device.productID];
+    }
+
+    [title appendFormat:@" %@", product];
+
+    self.window.title = title;
 }
 
 //
@@ -229,7 +219,7 @@ static const NSPoint gCascadeDelta = {72.0, 0.0}; // move an inch to right
             // compute our frame based on the number of elements to display
             NSRect frame = [[self window] frame];
             frame.size.height = _IOHIDDeviceView.frame.size.height + (32.f * ([tArray count] + 1));
-            [collectionView setFrame:frame];
+            [self.collectionView setFrame:frame];
             NSLogDebug(@"collectionView.frame: %@", NSStringFromRect(frame));
 
             // use screen frame to move our window to the top
@@ -303,7 +293,6 @@ static const NSPoint gCascadeDelta = {72.0, 0.0}; // move an inch to right
 @synthesize _IOHIDElementModels;
 // @synthesize collectionView;
 // @synthesize textView;
-@synthesize name;
 
 @end
 // ****************************************************

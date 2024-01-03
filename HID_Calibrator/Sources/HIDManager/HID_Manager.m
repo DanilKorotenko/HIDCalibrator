@@ -122,6 +122,10 @@ static void Handle_DeviceRemovalCallback(void *inContext, IOReturn inResult, voi
     return YES;
 }
 
+- (BOOL)requestAccess
+{
+    return IOHIDRequestAccess(kIOHIDRequestTypeListenEvent);
+}
 
 #pragma mark -
 
@@ -143,21 +147,11 @@ static void Handle_DeviceRemovalCallback(void *inContext, IOReturn inResult, voi
 static void Handle_DeviceMatchingCallback(void *inContext, IOReturn inResult, void *inSender,
     IOHIDDeviceRef inIOHIDDeviceRef)
 {
-    NSLogDebug(@"(context: %p, result: 0x%08X, sender: %p, device: %p)",
-               inContext, inResult, inSender, (void *) inIOHIDDeviceRef);
-#ifdef DEBUG
     HID_Device *device = [HID_Device createWithDeviceRef:inIOHIDDeviceRef];
 
-    NSLog(@"device: %@", device);
+    NSLog(@"device added: %@", device);
 
-#endif // def DEBUG
-    NSInteger vendorID = device.vendorID;
-    NSInteger productID = device.productID;
-
-	if ((vendorID != 0x12BA) || (productID != 0x0030))
-    {
-        [(__bridge HID_Manager *)inContext deviceAdded:device];
-    }
+    [(__bridge HID_Manager *)inContext deviceAdded:device];
 }
 
 //
@@ -166,10 +160,9 @@ static void Handle_DeviceMatchingCallback(void *inContext, IOReturn inResult, vo
 static void Handle_DeviceRemovalCallback(void *inContext, IOReturn inResult, void *inSender,
     IOHIDDeviceRef inIOHIDDeviceRef)
 {
-    NSLogDebug("(context: %p, result: 0x%08X, sender: %p, device: %p).\n",
-               inContext, inResult, inSender, (void *) inIOHIDDeviceRef);
-
     HID_Device *device = [HID_Device createWithDeviceRef:inIOHIDDeviceRef];
+
+    NSLog(@"device removed: %@", device);
 
     [(__bridge HID_Manager *)inContext deviceRemoved:device];
 }
