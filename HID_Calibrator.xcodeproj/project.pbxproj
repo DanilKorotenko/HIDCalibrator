@@ -211,8 +211,6 @@
 				97FDF9B9133EA0950035218F /* IOHIDDeviceWindowCtrl.m */,
 				976D4FE1133FBA660054AFA8 /* IOHIDElementCollectionViewItem.h */,
 				976D4FE2133FBA660054AFA8 /* IOHIDElementCollectionViewItem.m */,
-				97FDF9B2133E959E0035218F /* IOHIDElementModel.h */,
-				97FDF9B3133E959E0035218F /* IOHIDElementModel.m */,
 				977D3FDD1346133000980122 /* MyLevelIndicatorView.h */,
 				977D3FDE1346133000980122 /* MyLevelIndicatorView.m */,
 			);
@@ -222,6 +220,8 @@
 		DA1E8DFE2B4457490050E96E /* HIDManager */ = {
 			isa = PBXGroup;
 			children = (
+				97FDF9B2133E959E0035218F /* IOHIDElementModel.h */,
+				97FDF9B3133E959E0035218F /* IOHIDElementModel.m */,
 				DA1E8DFF2B4457860050E96E /* HID_Manager.h */,
 				DA1E8E002B4457860050E96E /* HID_Manager.m */,
 				DA1E8E042B445E0C0050E96E /* HID_Device.h */,
