@@ -20,7 +20,6 @@
 #pragma mark - local ( static ) function prototypes *
 // ----------------------------------------------------
 
-static CFStringRef Copy_DeviceName(IOHIDDeviceRef inIOHIDDeviceRef);
 static void Handle_IOHIDValueCallback(void *inContext,
                                       IOReturn inResult,
                                       void *inSender,
@@ -152,13 +151,6 @@ static void Handle_IOHIDValueCallback(void *inContext,
         _IOHIDDeviceRef = inIOHIDDeviceRef;
         if (inIOHIDDeviceRef)
         {
-            // use the device name to title the window
-            CFStringRef devCFStringRef = Copy_DeviceName(inIOHIDDeviceRef);
-            if (devCFStringRef)
-            {
-                [[self window] setTitle:(__bridge NSString *)devCFStringRef];
-                CFRelease(devCFStringRef);
-            }
 
             // iterate over all this devices elements creating model objects for each one
             NSMutableArray *tArray = [NSMutableArray array];
@@ -298,101 +290,6 @@ static void Handle_IOHIDValueCallback(void *inContext,
 // ****************************************************
 #pragma mark - local ( static ) function implementations *
 // ----------------------------------------------------
-
-//
-// get name of device
-//
-static CFStringRef Copy_DeviceName(IOHIDDeviceRef inIOHIDDeviceRef)
-{
-    CFStringRef result = NULL;
-
-    if (inIOHIDDeviceRef)
-    {
-        CFStringRef manCFStringRef = IOHIDDevice_GetManufacturer(inIOHIDDeviceRef);
-        if (manCFStringRef)
-        {
-            // make a copy that we can CFRelease later
-            CFMutableStringRef tCFStringRef = CFStringCreateMutableCopy(kCFAllocatorDefault,
-                                                                        0, manCFStringRef);
-
-            // trim off any trailing spaces
-            while (CFStringHasSuffix(tCFStringRef, CFSTR(" ")))
-            {
-                CFIndex cnt = CFStringGetLength(tCFStringRef);
-                if (!cnt)
-                {
-                    break;
-                }
-
-                CFStringDelete(tCFStringRef,
-                               CFRangeMake(cnt - 1, 1));
-            }
-
-            manCFStringRef = tCFStringRef;
-        }
-
-        uint32_t vendorID = IOHIDDevice_GetVendorID(inIOHIDDeviceRef);
-        if (!manCFStringRef)
-        {
-            manCFStringRef = HIDCopyVendorNameFromVendorID(vendorID);
-            if (!manCFStringRef)
-            {
-                manCFStringRef = CFStringCreateWithFormat(kCFAllocatorDefault,
-                                                          NULL, CFSTR("vendor: %d"), vendorID);
-            }
-        }
-
-        CFStringRef prodCFStringRef = IOHIDDevice_GetProduct(inIOHIDDeviceRef);
-        if (prodCFStringRef)
-        {
-            // make a copy that we can CFRelease later
-            prodCFStringRef = CFStringCreateCopy(kCFAllocatorDefault, prodCFStringRef);
-        }
-        else
-        {
-            // use the product ID
-            uint32_t productID = IOHIDDevice_GetProductID(inIOHIDDeviceRef);
-            if (productID)
-            {
-                prodCFStringRef = HIDCopyProductNameFromVendorProductID(vendorID,
-                                                                        productID);
-                if (!prodCFStringRef)
-                {
-                    // to make a product string
-                    prodCFStringRef = CFStringCreateWithFormat(kCFAllocatorDefault,
-                                                               NULL,
-                                                               CFSTR("%@ - product id % d"), manCFStringRef, productID);
-                }
-            }
-        }
-
-        assert(prodCFStringRef);
-        // if the product name begins with the manufacturer string...
-        if (CFStringHasPrefix(prodCFStringRef, manCFStringRef))
-        {
-            // then just use the product name
-            result = CFStringCreateCopy(kCFAllocatorDefault, prodCFStringRef);
-        }
-        else
-        {
-            // append the product name to the manufacturer
-            result = CFStringCreateWithFormat(kCFAllocatorDefault,
-                                              NULL,
-                                              CFSTR("%@ - %@"), manCFStringRef, prodCFStringRef);
-        }
-
-        if (manCFStringRef)
-        {
-            CFRelease(manCFStringRef);
-        }
-        if (prodCFStringRef)
-        {
-            CFRelease(prodCFStringRef);
-        }
-    }
-
-    return (result);
-}
 
 //
 //

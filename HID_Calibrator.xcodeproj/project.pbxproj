@@ -78,13 +78,13 @@
 		DA1E8DF82B444E650050E96E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		DA1E8DF92B444E650050E96E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/IOHIDDeviceWindow.xib; sourceTree = "<group>"; };
 		DA1E8DFA2B444E650050E96E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/IOHIDElementCollectionView.xib; sourceTree = "<group>"; };
-		DA1E8DFD2B4451C20050E96E /* HID_Calibrator_Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = HID_Calibrator_Common.h; path = ../../../HID_Calibrator_Common.h; sourceTree = "<group>"; };
 		DA1E8DFF2B4457860050E96E /* HID_Manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HID_Manager.h; sourceTree = "<group>"; };
 		DA1E8E002B4457860050E96E /* HID_Manager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HID_Manager.m; sourceTree = "<group>"; };
 		DA1E8E042B445E0C0050E96E /* HID_Device.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HID_Device.h; sourceTree = "<group>"; };
 		DA1E8E052B445E0C0050E96E /* HID_Device.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HID_Device.m; sourceTree = "<group>"; };
 		DA1E8E0F2B446D410050E96E /* HID_Error.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HID_Error.h; sourceTree = "<group>"; };
 		DA1E8E102B446D410050E96E /* HID_Error.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HID_Error.m; sourceTree = "<group>"; };
+		DA56D4082B49913B00A6FE78 /* HID_Calibrator_Common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HID_Calibrator_Common.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -202,7 +202,7 @@
 			children = (
 				DA1E8DFE2B4457490050E96E /* HIDManager */,
 				97FDF980133E82820035218F /* HID Utilities */,
-				DA1E8DFD2B4451C20050E96E /* HID_Calibrator_Common.h */,
+				DA56D4082B49913B00A6FE78 /* HID_Calibrator_Common.h */,
 				97FDF973133E813C0035218F /* HID_CalibratorAppDelegate.h */,
 				97FDF974133E813C0035218F /* HID_CalibratorAppDelegate.m */,
 				97C9CABD176F6C0400EE42AE /* IOHIDDeviceView.h */,
